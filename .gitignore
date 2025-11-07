@@ -1,0 +1,21 @@
+# General
+.DS_Store
+node_modules/
+dist/
+build/
+
+# Environment files
+.env
+
+# Go
+backend/bin/
+backend/server
+
+# Expo
+.expo/
+.expo-shared/
+frontend/.expo/
+frontend/.expo-shared/
+frontend/android/
+frontend/ios/
+
