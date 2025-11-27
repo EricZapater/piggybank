@@ -24,18 +24,27 @@ func NewService(store Store, couplesStore couples.Store) Service {
 }
 
 func (s Service) Create(ctx context.Context, userID uuid.UUID, title string, description *string, startDate time.Time, endDate *time.Time) (PiggyBank, error) {
+	var coupleID *uuid.UUID
+	var ownerUserID *uuid.UUID
+
 	couple, err := s.couples.GetCoupleByUserID(ctx, userID)
 	if err != nil {
 		if errors.Is(err, couples.ErrNotFound) {
-			return PiggyBank{}, ErrNotAuthorized
+			// Solo mode
+			ownerUserID = &userID
+		} else {
+			return PiggyBank{}, err
 		}
-		return PiggyBank{}, err
+	} else {
+		// Couple mode
+		coupleID = &couple.ID
 	}
 
 	now := time.Now().UTC()
 	pb := PiggyBank{
 		ID:          uuid.New(),
-		CoupleID:    couple.ID,
+		CoupleID:    coupleID,
+		OwnerUserID: ownerUserID,
 		Title:       title,
 		Description: description,
 		StartDate:   startDate,

@@ -42,46 +42,36 @@ const LoadingScreen = () => (
 );
 
 const AuthenticatedNavigator = () => {
-  const { state, loading, initialized } = useCouple();
+  const { loading, initialized } = useCouple();
 
   if (!initialized || loading) {
     return <LoadingScreen />;
   }
 
-  if (state.couple) {
-    return (
-      <PiggyBankProvider>
-        <AppStack.Navigator screenOptions={{ headerShown: false }}>
-          <AppStack.Screen name="Dashboard" component={DashboardScreen} />
-          <AppStack.Screen
-            name="PiggyBankList"
-            component={PiggyBankListScreen}
-          />
-          <AppStack.Screen name="Profile" component={ProfileScreen} />
-          <AppStack.Screen
-            name="CreatePiggyBank"
-            component={CreatePiggyBankScreen}
-          />
-          <AppStack.Screen
-            name="PiggyBankDetail"
-            component={PiggyBankDetailScreen}
-          />
-          <AppStack.Screen
-            name="CreateVoucherTemplate"
-            component={CreateVoucherTemplateScreen}
-          />
-          <AppStack.Screen name="RecordAction" component={RecordActionScreen} />
-          <AppStack.Screen name="History" component={HistoryScreen} />
-        </AppStack.Navigator>
-      </PiggyBankProvider>
-    );
-  }
-
   return (
-    <CoupleStack.Navigator screenOptions={{ headerShown: false }}>
-      <CoupleStack.Screen name="CoupleStatus" component={CoupleStatusScreen} />
-      <CoupleStack.Screen name="CoupleInvite" component={CoupleInviteScreen} />
-    </CoupleStack.Navigator>
+    <PiggyBankProvider>
+      <AppStack.Navigator screenOptions={{ headerShown: false }}>
+        <AppStack.Screen name="Dashboard" component={DashboardScreen} />
+        <AppStack.Screen name="PiggyBankList" component={PiggyBankListScreen} />
+        <AppStack.Screen name="Profile" component={ProfileScreen} />
+        <AppStack.Screen
+          name="CreatePiggyBank"
+          component={CreatePiggyBankScreen}
+        />
+        <AppStack.Screen
+          name="PiggyBankDetail"
+          component={PiggyBankDetailScreen}
+        />
+        <AppStack.Screen
+          name="CreateVoucherTemplate"
+          component={CreateVoucherTemplateScreen}
+        />
+        <AppStack.Screen name="RecordAction" component={RecordActionScreen} />
+        <AppStack.Screen name="History" component={HistoryScreen} />
+        <AppStack.Screen name="CoupleStatus" component={CoupleStatusScreen} />
+        <AppStack.Screen name="CoupleInvite" component={CoupleInviteScreen} />
+      </AppStack.Navigator>
+    </PiggyBankProvider>
   );
 };
 

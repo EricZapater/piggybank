@@ -28,7 +28,8 @@ type createPiggyBankPayload struct {
 
 type piggyBankResponse struct {
 	ID                     string  `json:"id"`
-	CoupleID               string  `json:"coupleId"`
+	CoupleID               *string `json:"coupleId"`
+	OwnerUserID            *string `json:"ownerUserId"`
 	Title                  string  `json:"title"`
 	Description            *string `json:"description"`
 	StartDate              string  `json:"startDate"`
@@ -81,7 +82,8 @@ func (h Handler) Create(c *gin.Context) {
 
 	resp := piggyBankResponse{
 		ID:          pb.ID.String(),
-		CoupleID:    pb.CoupleID.String(),
+		CoupleID:    formatUUIDPtr(pb.CoupleID),
+		OwnerUserID: formatUUIDPtr(pb.OwnerUserID),
 		Title:       pb.Title,
 		Description: pb.Description,
 		StartDate:   pb.StartDate.Format(time.RFC3339),
@@ -110,7 +112,8 @@ func (h Handler) List(c *gin.Context) {
 		pb := pbv.PiggyBank
 		resp = append(resp, piggyBankResponse{
 			ID:                    pb.ID.String(),
-			CoupleID:              pb.CoupleID.String(),
+			CoupleID:              formatUUIDPtr(pb.CoupleID),
+			OwnerUserID:           formatUUIDPtr(pb.OwnerUserID),
 			Title:                 pb.Title,
 			Description:           pb.Description,
 			StartDate:             pb.StartDate.Format(time.RFC3339),
@@ -154,7 +157,8 @@ func (h Handler) GetByID(c *gin.Context) {
 
 	resp := piggyBankResponse{
 		ID:          pb.ID.String(),
-		CoupleID:    pb.CoupleID.String(),
+		CoupleID:    formatUUIDPtr(pb.CoupleID),
+		OwnerUserID: formatUUIDPtr(pb.OwnerUserID),
 		Title:       pb.Title,
 		Description: pb.Description,
 		StartDate:   pb.StartDate.Format(time.RFC3339),
@@ -171,6 +175,14 @@ func formatTimePtr(t *time.Time) *string {
 	}
 	formatted := t.Format(time.RFC3339)
 	return &formatted
+}
+
+func formatUUIDPtr(u *uuid.UUID) *string {
+	if u == nil {
+		return nil
+	}
+	s := u.String()
+	return &s
 }
 
 func (h Handler) Close(c *gin.Context) {

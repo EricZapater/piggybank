@@ -144,7 +144,8 @@ const DashboardScreen: React.FC = () => {
         <Text style={styles.title}>Tauler</Text>
 
         {/* Partner Info */}
-        {partner && (
+        {/* Partner Info or Connect CTA */}
+        {partner ? (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>La teva parella</Text>
             <View style={styles.partnerCard}>
@@ -155,6 +156,21 @@ const DashboardScreen: React.FC = () => {
                 {new Date(coupleState.couple!.createdAt).toLocaleDateString()}
               </Text>
             </View>
+          </View>
+        ) : (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Mode Solo</Text>
+            <Pressable
+              style={styles.connectPartnerCard}
+              onPress={() => navigation.navigate("CoupleStatus")}
+            >
+              <Text style={styles.connectPartnerTitle}>
+                Connecta amb la teva parella
+              </Text>
+              <Text style={styles.connectPartnerDescription}>
+                Fes clic aquí per convidar la teva parella.
+              </Text>
+            </Pressable>
           </View>
         )}
 
@@ -456,17 +472,28 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: 16,
   },
-  dangerButton: {
-    flex: 1,
-    backgroundColor: colors.danger,
-    paddingVertical: 16,
-    borderRadius: 14,
-    alignItems: "center",
-  },
   dangerButtonText: {
     color: colors.text.inverted,
     fontWeight: "600",
     fontSize: 16,
+  },
+  connectPartnerCard: {
+    ...globalStyles.card,
+    padding: 20,
+    backgroundColor: "#F0F9FF",
+    borderWidth: 1,
+    borderColor: "#BAE6FD",
+  },
+  connectPartnerTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#0369A1",
+    marginBottom: 8,
+  },
+  connectPartnerDescription: {
+    fontSize: 14,
+    color: "#0C4A6E",
+    lineHeight: 20,
   },
 });
 

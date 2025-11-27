@@ -26,4 +26,6 @@ export type AppStackParamList = {
   CreateVoucherTemplate: { piggyBankId: string };
   RecordAction: { piggyBankId: string };
   History: { piggyBankId: string };
+  CoupleStatus: undefined;
+  CoupleInvite: undefined;
 };

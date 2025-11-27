@@ -8,7 +8,8 @@ import (
 
 type PiggyBank struct {
 	ID          uuid.UUID
-	CoupleID    uuid.UUID
+	CoupleID    *uuid.UUID
+	OwnerUserID *uuid.UUID
 	Title       string
 	Description *string
 	StartDate   time.Time

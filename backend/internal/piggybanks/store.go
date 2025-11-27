@@ -21,10 +21,10 @@ func NewStore(pool *pgxpool.Pool) Store {
 
 func (s Store) Create(ctx context.Context, pb PiggyBank) error {
 	query := `
-        INSERT INTO piggybanks (id, couple_id, title, description, start_date, end_date, created_at, updated_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        INSERT INTO piggybanks (id, couple_id, owner_user_id, title, description, start_date, end_date, created_at, updated_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
     `
-	_, err := s.pool.Exec(ctx, query, pb.ID, pb.CoupleID, pb.Title, pb.Description, pb.StartDate, pb.EndDate, pb.CreatedAt, pb.UpdatedAt)
+	_, err := s.pool.Exec(ctx, query, pb.ID, pb.CoupleID, pb.OwnerUserID, pb.Title, pb.Description, pb.StartDate, pb.EndDate, pb.CreatedAt, pb.UpdatedAt)
 	return err
 }
 
@@ -41,13 +41,16 @@ func (s Store) Update(ctx context.Context, pb PiggyBank) error {
 func (s Store) ListByUserID(ctx context.Context, userID uuid.UUID) ([]PiggyBankView, error) {
 	query := `
 		SELECT
-			pb.id, pb.couple_id, pb.title, pb.description, pb.start_date, pb.end_date, pb.created_at, pb.updated_at,
+			pb.id, pb.couple_id, pb.owner_user_id, pb.title, pb.description, pb.start_date, pb.end_date, pb.created_at, pb.updated_at,
 			(SELECT COUNT(*) FROM voucher_templates vt WHERE vt.piggybank_id = pb.id) as voucher_templates_count,
 			(SELECT COUNT(*) FROM action_entries ae JOIN voucher_templates vt ON ae.voucher_template_id = vt.id WHERE vt.piggybank_id = pb.id) as total_actions,
 			COALESCE((SELECT SUM(vt.amount_cents) FROM action_entries ae JOIN voucher_templates vt ON ae.voucher_template_id = vt.id WHERE vt.piggybank_id = pb.id), 0) as total_value
 		FROM piggybanks pb
-		INNER JOIN couples c ON pb.couple_id = c.id
-		WHERE (c.partner1_user_id = $1 OR c.partner2_user_id = $1) AND pb.end_date IS NULL
+		LEFT JOIN couples c ON pb.couple_id = c.id
+		WHERE (
+			pb.owner_user_id = $1 OR
+			(c.partner1_user_id = $1 OR c.partner2_user_id = $1)
+		) AND pb.end_date IS NULL
 		ORDER BY pb.created_at DESC
 	`
 	rows, err := s.pool.Query(ctx, query, userID)
@@ -62,7 +65,7 @@ func (s Store) ListByUserID(ctx context.Context, userID uuid.UUID) ([]PiggyBankV
 		var count int
 		var totalActions int
 		var totalValue int
-		if err := rows.Scan(&pb.ID, &pb.CoupleID, &pb.Title, &pb.Description, &pb.StartDate, &pb.EndDate, &pb.CreatedAt, &pb.UpdatedAt, &count, &totalActions, &totalValue); err != nil {
+		if err := rows.Scan(&pb.ID, &pb.CoupleID, &pb.OwnerUserID, &pb.Title, &pb.Description, &pb.StartDate, &pb.EndDate, &pb.CreatedAt, &pb.UpdatedAt, &count, &totalActions, &totalValue); err != nil {
 			return nil, err
 		}
 		piggyBanks = append(piggyBanks, PiggyBankView{
@@ -77,14 +80,14 @@ func (s Store) ListByUserID(ctx context.Context, userID uuid.UUID) ([]PiggyBankV
 
 func (s Store) GetByID(ctx context.Context, id uuid.UUID) (PiggyBank, error) {
 	query := `
-        SELECT id, couple_id, title, description, start_date, end_date, created_at, updated_at
+        SELECT id, couple_id, owner_user_id, title, description, start_date, end_date, created_at, updated_at
         FROM piggybanks
         WHERE id = $1
         LIMIT 1
     `
 	row := s.pool.QueryRow(ctx, query, id)
 	var pb PiggyBank
-	if err := row.Scan(&pb.ID, &pb.CoupleID, &pb.Title, &pb.Description, &pb.StartDate, &pb.EndDate, &pb.CreatedAt, &pb.UpdatedAt); err != nil {
+	if err := row.Scan(&pb.ID, &pb.CoupleID, &pb.OwnerUserID, &pb.Title, &pb.Description, &pb.StartDate, &pb.EndDate, &pb.CreatedAt, &pb.UpdatedAt); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return PiggyBank{}, ErrNotFound
 		}
@@ -95,15 +98,18 @@ func (s Store) GetByID(ctx context.Context, id uuid.UUID) (PiggyBank, error) {
 
 func (s Store) GetByIDForUser(ctx context.Context, id uuid.UUID, userID uuid.UUID) (PiggyBank, error) {
 	query := `
-        SELECT pb.id, pb.couple_id, pb.title, pb.description, pb.start_date, pb.end_date, pb.created_at, pb.updated_at
+        SELECT pb.id, pb.couple_id, pb.owner_user_id, pb.title, pb.description, pb.start_date, pb.end_date, pb.created_at, pb.updated_at
         FROM piggybanks pb
-        INNER JOIN couples c ON pb.couple_id = c.id
-        WHERE pb.id = $1 AND (c.partner1_user_id = $2 OR c.partner2_user_id = $2)
+        LEFT JOIN couples c ON pb.couple_id = c.id
+        WHERE pb.id = $1 AND (
+            pb.owner_user_id = $2 OR
+            (c.partner1_user_id = $2 OR c.partner2_user_id = $2)
+        )
         LIMIT 1
     `
 	row := s.pool.QueryRow(ctx, query, id, userID)
 	var pb PiggyBank
-	if err := row.Scan(&pb.ID, &pb.CoupleID, &pb.Title, &pb.Description, &pb.StartDate, &pb.EndDate, &pb.CreatedAt, &pb.UpdatedAt); err != nil {
+	if err := row.Scan(&pb.ID, &pb.CoupleID, &pb.OwnerUserID, &pb.Title, &pb.Description, &pb.StartDate, &pb.EndDate, &pb.CreatedAt, &pb.UpdatedAt); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return PiggyBank{}, ErrNotFound
 		}

@@ -28,6 +28,53 @@
       "bundler": "metro",
       "devServer": {
         "port": 8080
+      },
+      "favicon": "./assets/favicon.png",
+
+      "name": "Piggybank",
+      "shortName": "Piggybank",
+      "description": "Estalvia amb la teva parella o pel teu compte.",
+      "display": "standalone",
+      "backgroundColor": "#ffffff",
+      "themeColor": "#ffffff",
+      "startUrl": "/",
+
+      "pwa": {
+        "registerServiceWorker": true
+      },
+
+      "meta": {
+        "apple-mobile-web-app-capable": "yes",
+        "apple-mobile-web-app-status-bar-style": "default"
+      },
+
+      "icons": [
+        {
+          "src": "./assets/icon.png",
+          "sizes": "512x512",
+          "type": "image/png",
+          "purpose": "any"
+        },
+        {
+          "src": "./assets/icon.png",
+          "sizes": "512x512",
+          "type": "image/png",
+          "purpose": "maskable"
+        }
+      ],
+
+      "manifest": {
+        "short_name": "Piggybank",
+        "start_url": "/",
+        "display": "standalone",
+        "background_color": "#ffffff",
+        "theme_color": "#ffffff"
+      }
+    },
+
+    "extra": {
+      "eas": {
+        "projectId": "a2892d73-0d3c-4410-8d67-849fd3beb9d9"
       }
     }
   }
