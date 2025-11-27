@@ -19,12 +19,15 @@ import { AppStackParamList } from "@/navigation/types";
 import { colors } from "@/theme/colors";
 import { globalStyles } from "@/theme/styles";
 
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 const Header: React.FC<{ showBack?: boolean }> = ({ showBack = false }) => {
   const { signOut } = useAuth();
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
 
   return (
-    <View style={styles.header}>
+    <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
       {showBack && (
         <Pressable
           style={styles.backButton}
@@ -156,12 +159,10 @@ const DashboardScreen: React.FC = () => {
         )}
 
         {/* Invitations Sent */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Invitacions enviades</Text>
-          {coupleState.outgoing.length === 0 ? (
-            <Text style={styles.emptyText}>Cap invitació enviada</Text>
-          ) : (
-            coupleState.outgoing.map((item) => (
+        {coupleState.outgoing.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Invitacions enviades</Text>
+            {coupleState.outgoing.map((item) => (
               <View key={item.id} style={styles.requestCard}>
                 <Text style={styles.requestPartner}>{item.partner.name}</Text>
                 <Text style={styles.requestEmail}>{item.partner.email}</Text>
@@ -169,24 +170,22 @@ const DashboardScreen: React.FC = () => {
                   Enviat el {new Date(item.createdAt).toLocaleString()}
                 </Text>
               </View>
-            ))
-          )}
-        </View>
+            ))}
+          </View>
+        )}
 
         {/* Invitations Received */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Invitacions rebudes</Text>
-          {coupleState.incoming.length === 0 ? (
-            <Text style={styles.emptyText}>Cap invitació rebuda</Text>
-          ) : (
+        {coupleState.incoming.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Invitacions rebudes</Text>
             <FlatList
               data={coupleState.incoming}
               keyExtractor={(item) => item.id}
               renderItem={renderRequestItem}
               scrollEnabled={false}
             />
-          )}
-        </View>
+          </View>
+        )}
 
         {/* Piggy Banks Status */}
         <View style={styles.section}>
@@ -239,7 +238,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 24,
-    paddingTop: 16,
+    // paddingTop handled dynamically
     paddingBottom: 16,
     backgroundColor: colors.surface,
     borderBottomWidth: 1,

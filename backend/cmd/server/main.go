@@ -109,14 +109,14 @@ func main() {
 			cfg.Email.Username,
 			cfg.Email.Password,
 			cfg.Email.From,
-			"http://localhost:8081", // Frontend URL for invitation links
+			"https://piggybank.zenith.ovh", // Frontend URL for invitation links
 		)
 		emailService = &service
 	}
 
 	coupleStore := couples.NewStore(dbPool)
 	// Use frontend URL for invitation links
-	coupleService := couples.NewService(coupleStore, userRepo, emailService, "http://localhost:8080")
+	coupleService := couples.NewService(coupleStore, userRepo, emailService, "https://api.piggybank.zenith.ovh")
 	coupleHandler := couples.NewHandler(coupleService)
 	piggybankStore := piggybanks.NewStore(dbPool)
 	piggybankService := piggybanks.NewService(piggybankStore, coupleStore)
