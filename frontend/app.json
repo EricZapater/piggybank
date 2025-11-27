@@ -40,7 +40,14 @@
       "startUrl": "/",
 
       "pwa": {
-        "registerServiceWorker": true
+        "registerServiceWorker": true,
+        "name": "Piggybank",
+        "shortName": "Piggybank",
+        "themeColor": "#ffffff",
+        "backgroundColor": "#ffffff",
+        "display": "standalone",
+        "orientation": "portrait",
+        "startUrl": "/"
       },
 
       "meta": {
