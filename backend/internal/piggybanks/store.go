@@ -44,7 +44,7 @@ func (s Store) ListByUserID(ctx context.Context, userID uuid.UUID) ([]PiggyBankV
 			pb.id, pb.couple_id, pb.title, pb.description, pb.start_date, pb.end_date, pb.created_at, pb.updated_at,
 			(SELECT COUNT(*) FROM voucher_templates vt WHERE vt.piggybank_id = pb.id) as voucher_templates_count,
 			(SELECT COUNT(*) FROM action_entries ae JOIN voucher_templates vt ON ae.voucher_template_id = vt.id WHERE vt.piggybank_id = pb.id) as total_actions,
-			COALESCE((SELECT SUM(ae.amount_cents) FROM action_entries ae JOIN voucher_templates vt ON ae.voucher_template_id = vt.id WHERE vt.piggybank_id = pb.id), 0) as total_value
+			COALESCE((SELECT SUM(vt.amount_cents) FROM action_entries ae JOIN voucher_templates vt ON ae.voucher_template_id = vt.id WHERE vt.piggybank_id = pb.id), 0) as total_value
 		FROM piggybanks pb
 		INNER JOIN couples c ON pb.couple_id = c.id
 		WHERE (c.partner1_user_id = $1 OR c.partner2_user_id = $1) AND pb.end_date IS NULL
