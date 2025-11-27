@@ -24,8 +24,6 @@ services:
     networks:
       - web
       - postgres-network
-    external_links:
-      - postgres_existent:PostgreSQL
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.piggybank-api.rule=Host(`api.piggybank.zenith.ovh`)"

@@ -66,7 +66,7 @@ func main() {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
 	defer dbPool.Close()
-
+	log.Default().Println("Database connection established. Starting migrations")
 	if err := database.RunMigrations(dbPool, cfg.Database.URL); err != nil {
 		log.Fatalf("failed to run migrations: %v", err)
 	}
