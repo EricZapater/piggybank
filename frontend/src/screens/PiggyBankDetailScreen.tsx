@@ -48,6 +48,7 @@ type Route = RouteProp<PiggyBankStackParamList, "PiggyBankDetail">;
 const PiggyBankDetailScreen: React.FC = () => {
   const navigation = useNavigation<Navigation>();
   const route = useRoute<Route>();
+  const insets = useSafeAreaInsets();
   const { piggyBankId } = route.params;
   const {
     getPiggyBank,
@@ -122,7 +123,10 @@ const PiggyBankDetailScreen: React.FC = () => {
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
+    >
       <Header />
       <Text style={styles.title}>{piggyBank.title}</Text>
       <Pressable

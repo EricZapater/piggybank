@@ -48,6 +48,7 @@ type Navigation = NativeStackNavigationProp<AppStackParamList>;
 
 const DashboardScreen: React.FC = () => {
   const navigation = useNavigation<Navigation>();
+  const insets = useSafeAreaInsets();
   const {
     state: coupleState,
     loading: coupleLoading,
@@ -140,7 +141,10 @@ const DashboardScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <Header />
-      <ScrollView style={styles.scrollContainer}>
+      <ScrollView
+        style={styles.scrollContainer}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
+      >
         <Text style={styles.title}>Tauler</Text>
 
         {/* Partner Info */}
