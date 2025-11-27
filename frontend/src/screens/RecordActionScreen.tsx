@@ -17,6 +17,8 @@ import { PiggyBankStackParamList } from "@/navigation/types";
 import { colors } from "@/theme/colors";
 import { globalStyles } from "@/theme/styles";
 
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 type Navigation = NativeStackNavigationProp<PiggyBankStackParamList>;
 type Route = RouteProp<PiggyBankStackParamList, "RecordAction">;
 
@@ -25,6 +27,7 @@ const RecordActionScreen: React.FC = () => {
   const route = useRoute<Route>();
   const { piggyBankId } = route.params;
   const { getVoucherTemplates, createActionEntry, state } = usePiggyBank();
+  const insets = useSafeAreaInsets();
 
   const [voucherTemplates, setVoucherTemplates] = useState<
     Awaited<ReturnType<typeof getVoucherTemplates>>
@@ -94,7 +97,7 @@ const RecordActionScreen: React.FC = () => {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 24 }]}>
         <Text style={styles.title}>Registra acció</Text>
         <Text style={styles.subtitle}>
           Selecciona una plantilla de val per registrar la teva acció
@@ -153,7 +156,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   header: {
-    padding: 24,
+    paddingHorizontal: 24,
+    // paddingTop handled dynamically
     paddingBottom: 24,
   },
   title: {

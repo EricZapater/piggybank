@@ -11,9 +11,12 @@ import Toast from "react-native-toast-message";
 
 import { useCouple } from "@/hooks/useCouple";
 
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 const CoupleInviteScreen: React.FC = () => {
   const { loading, sendInvite } = useCouple();
   const [email, setEmail] = useState("");
+  const insets = useSafeAreaInsets();
 
   const handleSend = async () => {
     if (!email.trim()) {
@@ -33,7 +36,7 @@ const CoupleInviteScreen: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top + 24 }]}>
       <Text style={styles.title}>Convida la teva parella</Text>
       <Text style={styles.subtitle}>
         Envia una invitació per enllaçar els vostres comptes.
@@ -66,7 +69,9 @@ const CoupleInviteScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 24,
+    paddingHorizontal: 24,
+    // paddingTop handled dynamically
+    paddingBottom: 24,
     backgroundColor: "#ffffff",
     justifyContent: "center",
   },

@@ -15,12 +15,15 @@ import { useCouple } from "@/hooks/useCouple";
 import { useAuth } from "@/hooks/useAuth";
 import { CoupleStackParamList } from "@/navigation/types";
 
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 const Header: React.FC<{ showBack?: boolean }> = ({ showBack = false }) => {
   const { signOut } = useAuth();
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
 
   return (
-    <View style={styles.header}>
+    <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
       {showBack && (
         <Pressable
           style={styles.backButton}

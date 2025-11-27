@@ -22,12 +22,15 @@ import { PiggyBankStackParamList } from "@/navigation/types";
 import { colors } from "@/theme/colors";
 import { globalStyles } from "@/theme/styles";
 
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 const Header: React.FC = () => {
   const { signOut } = useAuth();
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
 
   return (
-    <View style={styles.header}>
+    <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
       <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
         <Text style={styles.backButtonText}>← Enrere</Text>
       </Pressable>
@@ -235,7 +238,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 24,
-    paddingTop: 16,
+    // paddingTop handled dynamically
     paddingBottom: 16,
     backgroundColor: colors.surface,
     borderBottomWidth: 1,
