@@ -79,6 +79,9 @@ func main() {
         if strings.HasPrefix(origin, "http://localhost:") {
             return true
         }
+		if strings.HasPrefix(origin, "https://piggybank.zenith.ovh") {
+            return true
+        }
         // Acceptar exp:// amb qualsevol cosa
         if strings.HasPrefix(origin, "exp://") {
             return true
