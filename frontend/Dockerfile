@@ -8,7 +8,7 @@ RUN npm install
 COPY . .
 
 # Export static files
-RUN npx expo export --platform web --experimental-pwa
+RUN npx expo export --platform web --output-dir dist
 
 FROM nginx:alpine
 
