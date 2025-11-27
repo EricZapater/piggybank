@@ -1,0 +1,2 @@
+ALTER TABLE piggybanks ALTER COLUMN start_date TYPE DATE;
+ALTER TABLE piggybanks ALTER COLUMN end_date TYPE DATE;

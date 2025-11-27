@@ -61,18 +61,21 @@ func (s Service) Register(ctx context.Context, email, password, name string) (us
 		return users.User{}, "", err
 	}
 
+	now := time.Now().UTC()
 	user := users.User{
 		ID:           uuid.New(),
 		Email:        email,
 		PasswordHash: string(hash),
 		Name:         name,
-		CreatedAt:    time.Now().UTC(),
+		CreatedAt:    now,
+		UpdatedAt:    now,
 	}
 
 	if err := s.users.Create(ctx, user); err != nil {
 		return users.User{}, "", err
 	}
 
+	
 	token, err := s.jwtManager.GenerateAccessToken(user.ID)
 	if err != nil {
 		return users.User{}, "", err

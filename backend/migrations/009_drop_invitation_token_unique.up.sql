@@ -1,0 +1,1 @@
+ALTER TABLE couple_requests DROP CONSTRAINT IF EXISTS couple_requests_invitation_token_key;

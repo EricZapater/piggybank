@@ -1,4 +1,4 @@
-import { apiFetch } from '@/api/client';
+import { apiFetch } from "@/api/client";
 
 export type User = {
   id: string;
@@ -24,22 +24,30 @@ type RegisterPayload = {
 
 export const login = (payload: LoginPayload) =>
   apiFetch<AuthResponse>({
-    path: '/auth/login',
-    method: 'POST',
+    path: "/auth/login",
+    method: "POST",
     body: JSON.stringify(payload),
   });
 
 export const register = (payload: RegisterPayload) =>
   apiFetch<AuthResponse>({
-    path: '/auth/register',
-    method: 'POST',
+    path: "/auth/register",
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+export const registerWithInvitation = (
+  payload: RegisterPayload & { invitationToken: string }
+) =>
+  apiFetch<AuthResponse>({
+    path: "/auth/register-with-invitation",
+    method: "POST",
     body: JSON.stringify(payload),
   });
 
 export const me = (token: string) =>
   apiFetch<User>({
-    path: '/auth/me',
-    method: 'GET',
+    path: "/auth/me",
+    method: "GET",
     token,
   });
-

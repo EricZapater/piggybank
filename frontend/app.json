@@ -6,6 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
+    "scheme": "exp",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -13,17 +14,24 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.zenithsoftwareproductions.piggybank"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.zenithsoftwareproductions.piggybank"
     },
     "web": {
-      "bundler": "metro"
+      "bundler": "metro",
+      "devServer": {
+        "port": 8080
+      }
+    },
+    "extra": {
+      "apiUrl": "http://localhost:8080"
     }
   }
 }
-

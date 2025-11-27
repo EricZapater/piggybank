@@ -1,6 +1,6 @@
 export type AuthStackParamList = {
   Login: undefined;
-  Register: undefined;
+  Register: { invitationToken?: string; email?: string };
 };
 
 export type CoupleStackParamList = {
@@ -8,7 +8,22 @@ export type CoupleStackParamList = {
   CoupleInvite: undefined;
 };
 
-export type AppStackParamList = {
-  CoupleStatus: undefined;
+export type PiggyBankStackParamList = {
+  PiggyBankList: undefined;
+  PiggyBankDetail: { piggyBankId: string };
+  CreatePiggyBank: undefined;
+  CreateVoucherTemplate: { piggyBankId: string };
+  RecordAction: { piggyBankId: string };
+  History: { piggyBankId: string };
 };
 
+export type AppStackParamList = {
+  Dashboard: undefined;
+  PiggyBankList: undefined;
+  Profile: undefined;
+  CreatePiggyBank: undefined;
+  PiggyBankDetail: { piggyBankId: string };
+  CreateVoucherTemplate: { piggyBankId: string };
+  RecordAction: { piggyBankId: string };
+  History: { piggyBankId: string };
+};

@@ -19,6 +19,13 @@ type Config struct {
 		AccessTokenSecret string
 		AccessTokenTTL    time.Duration
 	}
+	Email struct {
+		SMTPHost string
+		SMTPPort string
+		Username string
+		Password string
+		From     string
+	}
 	Migration struct {
 		Path string
 	}
@@ -46,6 +53,12 @@ func Load() (Config, error) {
 		return Config{}, errors.New("JWT_ACCESS_TTL must be an integer representing seconds")
 	}
 	cfg.Auth.AccessTokenTTL = time.Duration(ttlSeconds) * time.Second
+
+	cfg.Email.SMTPHost = getenvDefault("SMTP_HOST", "")
+	cfg.Email.SMTPPort = getenvDefault("SMTP_PORT", "587")
+	cfg.Email.Username = getenvDefault("SMTP_USERNAME", "")
+	cfg.Email.Password = getenvDefault("SMTP_PASSWORD", "")
+	cfg.Email.From = getenvDefault("SMTP_FROM", "")
 
 	cfg.Migration.Path = getenvDefault("MIGRATIONS_PATH", "./migrations")
 

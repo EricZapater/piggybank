@@ -31,6 +31,10 @@ type acceptCouplePayload struct {
 	RequestID string `json:"requestId"`
 }
 
+type resendCouplePayload struct {
+	RequestID string `json:"requestId"`
+}
+
 type coupleResponse struct {
 	ID        string      `json:"id"`
 	Partner   userSummary `json:"partner"`
@@ -144,6 +148,44 @@ func (h Handler) Accept(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusOK, resp)
 }
 
+// Resend handles POST /couples/resend.
+func (h Handler) Resend(w http.ResponseWriter, r *http.Request) {
+	user, ok := auth.UserFromContext(r.Context())
+	if !ok {
+		response.Unauthorized(w, "unauthenticated")
+		return
+	}
+
+	var payload resendCouplePayload
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		response.BadRequest(w, "invalid payload")
+		return
+	}
+
+	requestID, err := uuid.Parse(payload.RequestID)
+	if err != nil {
+		response.BadRequest(w, "invalid requestId")
+		return
+	}
+
+	err = h.service.ResendCouple(r.Context(), requestID, user.ID)
+	if err != nil {
+		switch {
+		case errors.Is(err, ErrRequestNotFound):
+			response.NotFound(w, err.Error())
+		case errors.Is(err, ErrRequestNotAuthorized):
+			response.Forbidden(w, err.Error())
+		case errors.Is(err, ErrRequestNotPending):
+			response.Conflict(w, err.Error())
+		default:
+			response.InternalError(w, err)
+		}
+		return
+	}
+
+	response.JSON(w, http.StatusOK, map[string]string{"message": "invitation resent"})
+}
+
 // Status handles GET /couples/me.
 func (h Handler) Status(w http.ResponseWriter, r *http.Request) {
 	user, ok := auth.UserFromContext(r.Context())
@@ -187,9 +229,24 @@ func (h Handler) Status(w http.ResponseWriter, r *http.Request) {
 		if !ok {
 			partner, err := h.service.users.GetByID(r.Context(), view.PartnerID)
 			if err != nil {
-				return requestResponse{}, err
+				if errors.Is(err, users.ErrNotFound) {
+					// For non-existent users, create a summary with email as name
+					// We need to get the email from the request
+					if view.Request.TargetEmail != nil {
+						summary = userSummary{
+							ID:    view.PartnerID.String(),
+							Email: *view.Request.TargetEmail,
+							Name:  *view.Request.TargetEmail,
+						}
+					} else {
+						return requestResponse{}, errors.New("partner profile missing")
+					}
+				} else {
+					return requestResponse{}, err
+				}
+			} else {
+				summary = mapUserSummary(partner)
 			}
-			summary = mapUserSummary(partner)
 			partnerCache[view.PartnerID] = summary
 		}
 		return requestResponse{

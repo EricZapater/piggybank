@@ -24,7 +24,9 @@ type Couple struct {
 type CoupleRequest struct {
 	ID              uuid.UUID
 	RequesterUserID uuid.UUID
-	TargetUserID    uuid.UUID
+	TargetUserID    *uuid.UUID
+	TargetEmail     *string
+	InvitationToken *string
 	Status          string
 	CreatedAt       time.Time
 	RespondedAt     *time.Time

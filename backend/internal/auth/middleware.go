@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gin-gonic/gin"
 	"github.com/piggybank/backend/internal/common/response"
 	"github.com/piggybank/backend/internal/users"
 )
@@ -48,6 +49,31 @@ func (m Middleware) Authenticate(next http.Handler) http.Handler {
 		ctx := context.WithValue(r.Context(), userContextKey, user)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
+}
+
+// GinAuthenticate is the Gin version of the authentication middleware.
+func (m Middleware) GinAuthenticate(c *gin.Context) {
+	tokenString := extractToken(c.GetHeader("Authorization"))
+	if tokenString == "" {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "missing authorization token"})
+		return
+	}
+
+	claims, err := m.manager.Parse(tokenString)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
+		return
+	}
+
+	user, err := m.users.GetByID(c.Request.Context(), claims.UserID)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "user not found"})
+		return
+	}
+
+	ctx := context.WithValue(c.Request.Context(), userContextKey, user)
+	c.Request = c.Request.WithContext(ctx)
+	c.Next()
 }
 
 // UserFromContext retrieves the authenticated user stored by the middleware.

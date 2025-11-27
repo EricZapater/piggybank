@@ -13,4 +13,5 @@ type User struct {
 	PasswordHash string
 	Name         string
 	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }

@@ -1,0 +1,44 @@
+version: "3.8"
+services:
+  piggybank-web:
+    image: ghcr.io/ericzapater/piggybank-web:latest
+    container_name: piggybank-web
+    restart: unless-stopped
+    networks:
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.piggybank-web.rule=Host(`piggybank.zenith.ovh`)"
+      - "traefik.http.routers.piggybank-web.entrypoints=websecure"
+      - "traefik.http.routers.piggybank-web.tls.certresolver=letsencrypt"
+      - "traefik.http.services.piggybank-web.loadbalancer.server.port=80"
+    depends_on:
+      - piggybank-api
+
+  piggybank-api:
+    image: ghcr.io/ericzapater/piggybank-api:latest
+    container_name: piggybank-api
+    restart: unless-stopped
+    env_file:
+      - .env.backend
+    networks:
+      - web
+      - postgres-network
+    external_links:
+      - postgres_existent:PostgreSQL
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.piggybank-api.rule=Host(`api.piggybank.zenith.ovh`)"
+      - "traefik.http.routers.piggybank-api.entrypoints=websecure"
+      - "traefik.http.routers.piggybank-api.tls.certresolver=letsencrypt"
+      - "traefik.http.services.piggybank-api.loadbalancer.server.port=8080"
+      - "traefik.docker.network=web"
+
+networks:
+  web:
+    external: true
+  postgres-network:
+    external: true
+
+volumes:
+  traefik-certificates:

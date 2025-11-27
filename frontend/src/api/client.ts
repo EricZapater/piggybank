@@ -1,15 +1,28 @@
-import Constants from 'expo-constants';
+import Constants from "expo-constants";
+import { Platform } from "react-native";
 
-const DEFAULT_API_URL = 'http://localhost:8080';
+const getDefaultUrl = () => {
+  if (__DEV__) {
+    // En desenvolupament, usar localhost amb la IP correcta
+    if (Platform.OS === "android") {
+      return "http://192.168.68.106:8080"; // Emulador Android
+    }
+    return "http://localhost:8080"; // iOS simulator o web
+  }
+  // En producció, la teva API real
+  return "https://api.piggybank.zenith.ovh";
+};
 
 const resolveBaseUrl = () => {
-  const expoConfig = Constants.expoConfig ?? Constants.manifest;
-  const extra = (expoConfig && 'extra' in expoConfig ? (expoConfig as any).extra : {}) as Record<string, unknown>;
+  // First check environment variable
+  const envUrl = process.env.EXPO_PUBLIC_API_URL;
+  if (envUrl) {
+    return envUrl;
+  }
 
-  const envUrl = process.env.EXPO_PUBLIC_API_URL as string | undefined;
-  const configUrl = (extra?.apiUrl as string | undefined) ?? envUrl;
-
-  return configUrl ?? DEFAULT_API_URL;
+  // Fallback to expo config
+  const extra = Constants.expoConfig?.extra ?? {};
+  return (extra.apiUrl as string) ?? getDefaultUrl();
 };
 
 export const API_URL = resolveBaseUrl();
@@ -31,12 +44,16 @@ const buildHeaders = (headers?: HeadersInit) => {
   return new Headers(headers ?? {});
 };
 
-export const apiFetch = async <T>({ path, token, ...init }: FetchOptions): Promise<T> => {
+export const apiFetch = async <T>({
+  path,
+  token,
+  ...init
+}: FetchOptions): Promise<T> => {
   const headers = buildHeaders(init.headers);
-  headers.set('Content-Type', 'application/json');
+  headers.set("Content-Type", "application/json");
 
   if (token) {
-    headers.set('Authorization', `Bearer ${token}`);
+    headers.set("Authorization", `Bearer ${token}`);
   }
 
   const response = await fetch(`${API_URL}${path}`, {
@@ -55,4 +72,3 @@ export const apiFetch = async <T>({ path, token, ...init }: FetchOptions): Promi
 
   return (await response.json()) as T;
 };
-

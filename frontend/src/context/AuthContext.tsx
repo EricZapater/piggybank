@@ -1,7 +1,13 @@
-import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, {
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import * as authApi from '@/api/auth';
+import * as authApi from "@/api/auth";
 
 export type AuthUser = authApi.User;
 
@@ -17,20 +23,32 @@ type AuthContextValue = {
   initialized: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (name: string, email: string, password: string) => Promise<void>;
+  signUpWithInvitation: (
+    name: string,
+    email: string,
+    password: string,
+    invitationToken: string
+  ) => Promise<void>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 };
 
-const TOKEN_KEY = '@piggybank/token';
+const TOKEN_KEY = "@piggybank/token";
 
-export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+export const AuthContext = createContext<AuthContextValue | undefined>(
+  undefined
+);
 
 type ProviderProps = {
   children: React.ReactNode;
 };
 
 export const AuthProvider: React.FC<ProviderProps> = ({ children }) => {
-  const [state, setState] = useState<AuthState>({ token: null, user: null, initialized: false });
+  const [state, setState] = useState<AuthState>({
+    token: null,
+    user: null,
+    initialized: false,
+  });
 
   useEffect(() => {
     const bootstrap = async () => {
@@ -58,15 +76,41 @@ export const AuthProvider: React.FC<ProviderProps> = ({ children }) => {
     setState({ token, user, initialized: true });
   }, []);
 
-  const signIn = useCallback(async (email: string, password: string) => {
-    const result = await authApi.login({ email, password });
-    await persistSession(result.token, result.user);
-  }, [persistSession]);
+  const signIn = useCallback(
+    async (email: string, password: string) => {
+      const result = await authApi.login({ email, password });
+      await persistSession(result.token, result.user);
+    },
+    [persistSession]
+  );
 
-  const signUp = useCallback(async (name: string, email: string, password: string) => {
-    const result = await authApi.register({ name, email, password });
-    await persistSession(result.token, result.user);
-  }, [persistSession]);
+  const signUp = useCallback(
+    async (name: string, email: string, password: string) => {
+      const result = await authApi.register({ name, email, password });
+      await persistSession(result.token, result.user);
+    },
+    [persistSession]
+  );
+
+  const signUpWithInvitation = useCallback(
+    async (
+      name: string,
+      email: string,
+      password: string,
+      invitationToken: string
+    ) => {
+      const result = await authApi.registerWithInvitation({
+        name,
+        email,
+        password,
+        invitationToken,
+      });
+      await persistSession(result.token, result.user);
+      // Small delay to ensure backend has processed the invitation update
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    },
+    [persistSession]
+  );
 
   const signOut = useCallback(async () => {
     await AsyncStorage.removeItem(TOKEN_KEY);
@@ -81,16 +125,28 @@ export const AuthProvider: React.FC<ProviderProps> = ({ children }) => {
     setState((prev: AuthState) => ({ ...prev, user: profile }));
   }, [state.token]);
 
-  const value = useMemo<AuthContextValue>(() => ({
-    token: state.token,
-    user: state.user,
-    initialized: state.initialized,
-    signIn,
-    signUp,
-    signOut,
-    refreshProfile,
-  }), [state.token, state.user, state.initialized, signIn, signUp, signOut, refreshProfile]);
+  const value = useMemo<AuthContextValue>(
+    () => ({
+      token: state.token,
+      user: state.user,
+      initialized: state.initialized,
+      signIn,
+      signUp,
+      signUpWithInvitation,
+      signOut,
+      refreshProfile,
+    }),
+    [
+      state.token,
+      state.user,
+      state.initialized,
+      signIn,
+      signUp,
+      signUpWithInvitation,
+      signOut,
+      refreshProfile,
+    ]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
-
