@@ -29,8 +29,22 @@ const manifest = { \
   background_color: expo.web?.backgroundColor || '#ffffff', \
   orientation: expo.orientation || 'portrait' \
 }; \
-fs.writeFileSync('dist/manifest.json', JSON.stringify(manifest, null, 2)); \
-console.log('manifest.json generated successfully');"
+fs.writeFileSync('dist/manifest.json', JSON.stringify(manifest, null, 2));"
+
+# Generate a basic service worker
+RUN echo "self.addEventListener('install', (event) => { \
+  self.skipWaiting(); \
+}); \
+self.addEventListener('activate', (event) => { \
+  event.waitUntil(clients.claim()); \
+}); \
+self.addEventListener('fetch', (event) => { \
+  event.respondWith(fetch(event.request)); \
+});" > dist/service-worker.js
+
+# Add manifest link and service worker registration to index.html
+RUN sed -i 's|</head>|  <link rel="manifest" href="/manifest.json">\n  <meta name="theme-color" content="#ffffff">\n  </head>|' dist/index.html && \
+    sed -i 's|</body>|  <script>\n    if ("serviceWorker" in navigator) {\n      window.addEventListener("load", () => {\n        navigator.serviceWorker.register("/service-worker.js");\n      });\n    }\n  </script>\n  </body>|' dist/index.html
 
 FROM nginx:alpine
 
