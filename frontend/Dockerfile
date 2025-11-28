@@ -30,28 +30,47 @@ RUN if [ ! -f dist/favicon.ico ] && [ -f dist/icon.png ]; then \
       cp dist/icon.png dist/favicon.png; \
     fi
 
-# Generate manifest.json from app.json
+# Copy screenshots if they exist
+RUN for i in 1 2 3 4 5; do \
+      if [ -f assets/screenshot-$i.jpeg ]; then \
+        cp assets/screenshot-$i.jpeg dist/screenshot-$i.jpeg; \
+      fi; \
+    done
+
+# Generate manifest.json with real screenshots
 RUN node -e "\
 const fs = require('fs'); \
 const appJson = JSON.parse(fs.readFileSync('app.json', 'utf8')); \
 const expo = appJson.expo; \
+\
+// Find all screenshots \
+const screenshots = []; \
+for (let i = 1; i <= 5; i++) { \
+  if (fs.existsSync('dist/screenshot-' + i + '.jpeg')) { \
+    screenshots.push({ \
+      src: '/screenshot-' + i + '.jpeg', \
+      sizes: '540x720', \
+      type: 'image/jpeg', \
+      form_factor: 'narrow' \
+    }); \
+  } \
+} \
+\
 const manifest = { \
   short_name: expo.name, \
   name: expo.name, \
   description: 'Estalvia amb la teva parella o pel teu compte.', \
   icons: [ \
     { src: '/icon.png', sizes: '192x192', type: 'image/png', purpose: 'any' }, \
-    { src: '/icon.png', sizes: '1024x1024', type: 'image/png', purpose: 'any' }, \
-    { src: '/icon.png', sizes: '1024x1024', type: 'image/png', purpose: 'maskable' } \
+    { src: '/icon.png', sizes: '512x512', type: 'image/png', purpose: 'any' }, \
+    { src: '/icon.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' } \
   ], \
-  screenshots: [ \
-    { \
-      src: '/icon.png', \
-      sizes: '540x720', \
-      type: 'image/png', \
-      form_factor: 'narrow' \
-    } \
-  ], \
+  screenshots: screenshots.length > 0 ? screenshots : [{ \
+    src: '/icon.png', \
+    sizes: '540x720', \
+    type: 'image/png', \
+    form_factor: 'narrow' \
+  }], \
   start_url: '/', \
   display: 'standalone', \
   theme_color: expo.web?.themeColor || '#ffffff', \
