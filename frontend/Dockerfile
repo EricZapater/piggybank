@@ -40,8 +40,17 @@ const manifest = { \
   name: expo.name, \
   description: 'Estalvia amb la teva parella o pel teu compte.', \
   icons: [ \
-    { src: '/icon.png', sizes: '512x512', type: 'image/png', purpose: 'any' }, \
-    { src: '/icon.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' } \
+    { src: '/icon.png', sizes: '192x192', type: 'image/png', purpose: 'any' }, \
+    { src: '/icon.png', sizes: '1024x1024', type: 'image/png', purpose: 'any' }, \
+    { src: '/icon.png', sizes: '1024x1024', type: 'image/png', purpose: 'maskable' } \
+  ], \
+  screenshots: [ \
+    { \
+      src: '/icon.png', \
+      sizes: '540x720', \
+      type: 'image/png', \
+      form_factor: 'narrow' \
+    } \
   ], \
   start_url: '/', \
   display: 'standalone', \
