@@ -10,6 +10,26 @@ COPY . .
 # Export static files
 RUN npx expo export --platform web --output-dir dist
 
+# Find and copy the icon (Expo generates it with a hash)
+RUN if [ -f dist/assets/*.png ]; then \
+      ICON_FILE=$(find dist/assets -name "*.png" -type f | head -n 1); \
+      if [ -n "$ICON_FILE" ]; then \
+        cp "$ICON_FILE" dist/icon.png; \
+        echo "Icon copied successfully"; \
+      fi; \
+    fi || echo "No icon found in assets"
+
+# Also check in the root assets folder and copy if exists
+RUN if [ -f assets/icon.png ]; then \
+      cp assets/icon.png dist/icon.png; \
+      echo "Icon copied from assets/icon.png"; \
+    fi
+
+# Create a simple favicon if it doesn't exist
+RUN if [ ! -f dist/favicon.ico ] && [ -f dist/icon.png ]; then \
+      cp dist/icon.png dist/favicon.png; \
+    fi
+
 # Generate manifest.json from app.json
 RUN node -e "\
 const fs = require('fs'); \
@@ -43,7 +63,7 @@ self.addEventListener('fetch', (event) => { \
 });" > dist/service-worker.js
 
 # Add manifest link and service worker registration to index.html
-RUN sed -i 's|</head>|  <link rel="manifest" href="/manifest.json">\n  <meta name="theme-color" content="#ffffff">\n  </head>|' dist/index.html && \
+RUN sed -i 's|</head>|  <link rel="manifest" href="/manifest.json">\n  <link rel="icon" href="/icon.png">\n  <meta name="theme-color" content="#ffffff">\n  </head>|' dist/index.html && \
     sed -i 's|</body>|  <script>\n    if ("serviceWorker" in navigator) {\n      window.addEventListener("load", () => {\n        navigator.serviceWorker.register("/service-worker.js");\n      });\n    }\n  </script>\n  </body>|' dist/index.html
 
 FROM nginx:alpine
